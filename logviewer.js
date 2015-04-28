@@ -107,7 +107,7 @@ function getLastLines(fd, fileSize, tailSize, callback) {
 }
 
 
-var pollInterval = args.i ? args.i : 2000;
+var pollInterval = args.i ? args.i : 200;
 
 
 init(file);
