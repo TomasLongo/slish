@@ -49,6 +49,12 @@ function init(file) {
   });
 }
 
+/**
+  Checks for new content on a file and prints the new content to STDOUT
+
+  params:
+    file The file to check for new content
+*/
 function poll(file) {
   fs.stat(file, function(error, stats) {
     var currentSize = stats.size;
