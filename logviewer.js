@@ -1,5 +1,6 @@
 var fs = require('fs'),
     util = require('util'),
+    minimist = require('minimist'),
     logger = require('BleedingTea');
 
 /**
@@ -14,15 +15,21 @@ var fs = require('fs'),
   zwischen der aktuellen und der letzten Iteration.
 */
 
-var file = "tests/testfile.log";
+var args = minimist(process.argv.slice(2));
+
+if (args._.length == 0) {
+  console.log("No file provided");
+  console.log("Usage; logviewer fileToPoll [-i]")
+  process.exit(1);
+}
+
+logger.active = args.v ? true : false;
+
+var file = args._[0];
+logger.info("Polling file " + file);
 
 var initialBytesToRead = 500;
-var bytesToRead = initialBytesToRead;
 var lastSize = 0;
-
-var lastPosition = 0;
-
-logger.active = false;
 
 /*
   Ermittle die initiale Größe des Files. U.u. ist es noch leer oder hat noch nicht
@@ -30,6 +37,11 @@ logger.active = false;
 */
 function init(file) {
   fs.stat(file, function(error, stats) {
+    if (error) {
+      console.error(error.message);
+      process.exit(1);
+    }
+
     if (initialBytesToRead > stats.size) {
       initialBytesToRead = stats.size;
       lastSize = stats.size;
@@ -40,11 +52,6 @@ function init(file) {
       getLastLines(fd, stats.size, initialBytesToRead, function(error, lastLines) {
         console.log(lastLines);
       });
-
-      // fs.read(fd, buffer, 0, initialBytesToRead, stats.size - initialBytesToRead, function(error, bRead, buffer) {
-      //   logger.info("Read " + bRead + " bytes from " + file);
-      //   console.log(String(buffer));
-      // });
     });
   });
 }
@@ -76,17 +83,20 @@ function poll(file) {
 }
 
 /**
-  Returns the last lines of a file denoted by fd.
+  Returns the tail of a file denoted by fd.
+
+  The tail is made up of the last **complete** lines that are found
+  in the last byteToRead bytes.
 
   params:
     fd          The filedescriptor of the file
     fileSize    The size of the file
-    byteToRead  The length of the file tail
-    callback    function(error, lastLines)
+    tailSize    The supposed length of the file tail
+    callback    function(error, tail)
 */
-function getLastLines(fd, fileSize, bytesToRead, callback) {
-  var buffer = new Buffer(bytesToRead);
-  fs.read(fd, buffer, 0, bytesToRead, fileSize - bytesToRead, function(error, bRead, buffer) {
+function getLastLines(fd, fileSize, tailSize, callback) {
+  var buffer = new Buffer(tailSize);
+  fs.read(fd, buffer, 0, tailSize, fileSize - tailSize, function(error, bRead, buffer) {
     var bufferString = String(buffer);
     var posToStartRead = -1;
     for (i = 0; i < bufferString.length; i++) {
@@ -100,7 +110,9 @@ function getLastLines(fd, fileSize, bytesToRead, callback) {
 }
 
 
+var pollInterval = args.i ? args.i : 200;
+
 
 init(file);
 
-setInterval(poll, 2000, file);
+setInterval(poll, pollInterval, file);
