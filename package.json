@@ -4,5 +4,6 @@
     "description":"Slick real time log viewer",
     "author":"Tomas Longo <longo.tomas@googlemail.com>",
     "dependencies": {
+      "minimist":"latest"
     }
   }
