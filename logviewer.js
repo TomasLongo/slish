@@ -60,9 +60,10 @@ function init(file) {
   Checks for new content on a file and prints the new content to STDOUT
 
   params:
-    file The file to check for new content
+    file      The file to check for new content
+    callback  function(error, content)
 */
-function poll(file) {
+function poll(file, callback) {
   fs.stat(file, function(error, stats) {
     var currentSize = stats.size;
     var delta = currentSize - lastSize;
@@ -74,8 +75,9 @@ function poll(file) {
       fs.open(file, "r", function(error, fd) {
         fs.read(fd, buffer, 0, delta, currentSize - delta, function(error, bRead, buffer) {
           logger.info("Read " + bRead + " bytes from " + file);
-          var toAppend = String(buffer);
-          console.log(toAppend.slice(0, toAppend.length-1));
+          var newContent = String(buffer);
+          
+          callback(error, newContent);
         });
       });
     }
@@ -105,6 +107,7 @@ function getLastLines(fd, fileSize, tailSize, callback) {
         break;
       }
     }
+
     callback(null, bufferString.slice(posToStartRead+1, bufferString.length));
   });
 }
@@ -115,4 +118,7 @@ var pollInterval = args.i ? args.i : 200;
 
 init(file);
 
-setInterval(poll, pollInterval, file);
+setInterval(poll,
+  pollInterval,
+  file,
+  function(error, content) {process.stdin.write(content)});
