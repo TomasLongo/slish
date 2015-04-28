@@ -1,6 +1,9 @@
 var fs = require('fs'),
     util = require('util'),
     minimist = require('minimist'),
+    ConsoleWriter = require('./writers/consolewriter.js'),
+    ColoredWriter = require('./writers/coloredwriter.js'),
+    NoopWriter = require('./writers/noopwriter.js'),
     logger = require('BleedingTea');
 
 /**
@@ -50,7 +53,7 @@ function init(file) {
     var buffer = new Buffer(initialBytesToRead);
     fs.open(file, "r", function(error, fd) {
       getLastLines(fd, stats.size, initialBytesToRead, function(error, lastLines) {
-        console.log(lastLines);
+        //console.log(lastLines);
       });
     });
   });
@@ -73,9 +76,11 @@ function poll(file, writer) {
     var buffer = new Buffer(delta);
     if (delta > 0) {
       fs.open(file, "r", function(error, fd) {
-        fs.read(fd, buffer, 0, delta, currentSize - delta, function(error, bRead, buffer) {
+        fs.read(fd, buffer, 0, delta, currentSize - delta - 1, function(error, bRead, buffer) {
           logger.info("Read " + bRead + " bytes from " + file);
+
           var newContent = String(buffer);
+          logger.info("New content: " + newContent);
 
           writer.consume(newContent);
         });
@@ -113,30 +118,11 @@ function getLastLines(fd, fileSize, tailSize, callback) {
 }
 
 
-var pollInterval = args.i ? args.i : 200;
-
+var pollInterval = args.i ? args.i : 50;
 
 init(file);
-
-var ConsoleWriter = function() {}
-ConsoleWriter.prototype.consume = function(data) {
-  process.stdin.write(data);
-}
-
-var cwriter = new ConsoleWriter();
 
 setInterval(poll,
   pollInterval,
   file,
-  cwriter);
-
-
-
-
-
-// Goal is something like that:
-//
-// setInterval(poll, interval, file, writer)
-//
-// writer is an object that takes in the new content of the polled file
-// and processes it in some way.
+  new ColoredWriter());
