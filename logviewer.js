@@ -39,6 +39,11 @@ var lastPosition = 0;
 */
 function init(file) {
   fs.stat(file, function(error, stats) {
+    if (error) {
+      console.error(error.message);
+      process.exit(1);
+    }
+
     if (initialBytesToRead > stats.size) {
       initialBytesToRead = stats.size;
       lastSize = stats.size;
