@@ -29,9 +29,7 @@ var file = args._[0];
 logger.info("Polling file " + file);
 
 var initialBytesToRead = 500;
-var bytesToRead = initialBytesToRead;
 var lastSize = 0;
-var lastPosition = 0;
 
 /*
   Ermittle die initiale Größe des Files. U.u. ist es noch leer oder hat noch nicht
