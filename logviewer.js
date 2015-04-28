@@ -63,7 +63,7 @@ function init(file) {
     file      The file to check for new content
     callback  function(error, content)
 */
-function poll(file, callback) {
+function poll(file, writer) {
   fs.stat(file, function(error, stats) {
     var currentSize = stats.size;
     var delta = currentSize - lastSize;
@@ -76,8 +76,8 @@ function poll(file, callback) {
         fs.read(fd, buffer, 0, delta, currentSize - delta, function(error, bRead, buffer) {
           logger.info("Read " + bRead + " bytes from " + file);
           var newContent = String(buffer);
-          
-          callback(error, newContent);
+
+          writer.consume(newContent);
         });
       });
     }
@@ -118,7 +118,25 @@ var pollInterval = args.i ? args.i : 200;
 
 init(file);
 
+var ConsoleWriter = function() {}
+ConsoleWriter.prototype.consume = function(data) {
+  process.stdin.write(data);
+}
+
+var cwriter = new ConsoleWriter();
+
 setInterval(poll,
   pollInterval,
   file,
-  function(error, content) {process.stdin.write(content)});
+  cwriter);
+
+
+
+
+
+// Goal is something like that:
+//
+// setInterval(poll, interval, file, writer)
+//
+// writer is an object that takes in the new content of the polled file
+// and processes it in some way.
