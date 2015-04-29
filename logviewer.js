@@ -38,7 +38,7 @@ var lastSize = 0;
   Ermittle die initiale Größe des Files. U.u. ist es noch leer oder hat noch nicht
   viel Inhalt. In diesem Fall müssen wir initial nicht so viel lesen.
 */
-function init(file) {
+function init(file, writer) {
   fs.stat(file, function(error, stats) {
     if (error) {
       console.error(error.message);
@@ -53,7 +53,8 @@ function init(file) {
     var buffer = new Buffer(initialBytesToRead);
     fs.open(file, "r", function(error, fd) {
       getLastLines(fd, stats.size, initialBytesToRead, function(error, lastLines) {
-        //console.log(lastLines);
+
+      writer.consume(lastLines);
       });
     });
   });
@@ -119,10 +120,8 @@ function getLastLines(fd, fileSize, tailSize, callback) {
 
 
 var pollInterval = args.i ? args.i : 50;
+var writer = new ColoredWriter();
 
-init(file);
+init(file, writer);
 
-setInterval(poll,
-  pollInterval,
-  file,
-  new ColoredWriter());
+setInterval(poll, pollInterval, file, writer);
