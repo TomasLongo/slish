@@ -3,7 +3,6 @@ var fs = require('fs'),
     minimist = require('minimist'),
     ConsoleWriter = require('./writers/consolewriter.js'),
     ColoredWriter = require('./writers/coloredwriter.js'),
-    NoopWriter = require('./writers/noopwriter.js'),
     logger = require('BleedingTea');
 
 /**
