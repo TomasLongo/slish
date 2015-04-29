@@ -26,8 +26,8 @@ module.exports = function() {
     this._readLines = function(string, callback) {
       var start = 0;
       for (i = 0; i < string.length; i++) {
-        if (string.charAt(i) == "\n") {
-          callback(string.slice(start, ++i)); //
+        if (string.charAt(i) == "\n" || i == string.length - 1) {
+          callback(string.slice(start, (i == string.length-1) ? ++i : i));
           start = i;
         }
       }
