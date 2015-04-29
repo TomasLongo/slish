@@ -1,0 +1,9 @@
+{
+  "name": "Writers",
+  "version": "1.0.0",
+  "description": "Collection of different writers for the log viewer",
+  "author": "Tomas Longo <longo.tomas@googlemail.com>",
+  "dependencies": {
+    "chalk": "^1.0.0"
+  }
+}
