@@ -1,5 +1,9 @@
 #Slick
 
+##0.3.0
+**[TECHNICAL]** Add possibility to hook in custom writers that process the new content
+of the file
+
 ##0.2.0
 * **[FEATURE]** Command line interface
     * Specify file to poll

@@ -1,6 +1,8 @@
 var fs = require('fs'),
     util = require('util'),
     minimist = require('minimist'),
+    ConsoleWriter = require('./writers/consolewriter.js'),
+    ColoredWriter = require('./writers/coloredwriter.js'),
     logger = require('BleedingTea');
 
 /**
@@ -35,7 +37,7 @@ var lastSize = 0;
   Ermittle die initiale Größe des Files. U.u. ist es noch leer oder hat noch nicht
   viel Inhalt. In diesem Fall müssen wir initial nicht so viel lesen.
 */
-function init(file) {
+function init(file, writer) {
   fs.stat(file, function(error, stats) {
     if (error) {
       console.error(error.message);
@@ -50,7 +52,8 @@ function init(file) {
     var buffer = new Buffer(initialBytesToRead);
     fs.open(file, "r", function(error, fd) {
       getLastLines(fd, stats.size, initialBytesToRead, function(error, lastLines) {
-        console.log(lastLines);
+
+      writer.consume(lastLines);
       });
     });
   });
@@ -63,7 +66,7 @@ function init(file) {
     file      The file to check for new content
     callback  function(error, content)
 */
-function poll(file, callback) {
+function poll(file, writer) {
   fs.stat(file, function(error, stats) {
     var currentSize = stats.size;
     var delta = currentSize - lastSize;
@@ -73,11 +76,13 @@ function poll(file, callback) {
     var buffer = new Buffer(delta);
     if (delta > 0) {
       fs.open(file, "r", function(error, fd) {
-        fs.read(fd, buffer, 0, delta, currentSize - delta, function(error, bRead, buffer) {
+        fs.read(fd, buffer, 0, delta, currentSize - delta - 1, function(error, bRead, buffer) {
           logger.info("Read " + bRead + " bytes from " + file);
+
           var newContent = String(buffer);
-          
-          callback(error, newContent);
+          logger.info("New content: " + newContent);
+
+          writer.consume(newContent);
         });
       });
     }
@@ -113,12 +118,9 @@ function getLastLines(fd, fileSize, tailSize, callback) {
 }
 
 
-var pollInterval = args.i ? args.i : 200;
+var pollInterval = args.i ? args.i : 50;
+var writer = new ColoredWriter();
 
+init(file, writer);
 
-init(file);
-
-setInterval(poll,
-  pollInterval,
-  file,
-  function(error, content) {process.stdin.write(content)});
+setInterval(poll, pollInterval, file, writer);
