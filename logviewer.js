@@ -26,10 +26,9 @@ if (args._.length == 0) {
 }
 
 logger.active = args.v ? true : false;
+logger.addAppender(new logger.appenders.FileAppender("logviewer.log"));
 
 var file = args._[0];
-logger.info("Polling file " + file);
-
 var initialBytesToRead = 500;
 var lastSize = 0;
 
@@ -47,6 +46,12 @@ function init(file, writer) {
     if (initialBytesToRead > stats.size) {
       initialBytesToRead = stats.size;
       lastSize = stats.size;
+    }
+
+    logger.info("File has initial size of " + stats.size);
+
+    if (initialBytesToRead == 0) {
+      return;
     }
 
     var buffer = new Buffer(initialBytesToRead);
@@ -71,17 +76,12 @@ function poll(file, writer) {
     var currentSize = stats.size;
     var delta = currentSize - lastSize;
     lastSize = currentSize;
-    logger.info("File has additional " + delta + " bytes");
 
     var buffer = new Buffer(delta);
     if (delta > 0) {
       fs.open(file, "r", function(error, fd) {
         fs.read(fd, buffer, 0, delta, currentSize - delta - 1, function(error, bRead, buffer) {
-          logger.info("Read " + bRead + " bytes from " + file);
-
           var newContent = String(buffer);
-          logger.info("New content: " + newContent);
-
           writer.consume(newContent);
         });
       });
@@ -123,4 +123,5 @@ var writer = new ColoredWriter();
 
 init(file, writer);
 
+logger.info("Sarting to poll file " + file);
 setInterval(poll, pollInterval, file, writer);
