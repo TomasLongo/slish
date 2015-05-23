@@ -13,5 +13,8 @@ of the file
 * **[FEATURE]** Poll a file and display content added to it
 
 ##Backlog
-* **[FEATURE]** Colorize content based on some pattern
-    * e.g. red for error logs, green for info, etc.
+* **[FEATURE]** Specify Writer to use on the command line
+* **[FEATURE]** *ColoredWriter* Specify pattern to control how messages
+will be colorized
+* **[FEATURE]** Create writer that sends data down the network
+* **[FEATURE]** Create writer that sends data to a message queue
