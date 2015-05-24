@@ -3,18 +3,41 @@ var chalk = require("chalk");
 module.exports = function() {
     this.consume = function(data) {
       this._readLines(data, function(line) {
-        if (line.indexOf("[ERROR]") > -1) {
-          process.stdin.write(chalk.red(line))
-        } else if (line.indexOf("[INFO]") > -1) {
-          process.stdin.write(chalk.green(line));
-        } else if (line.indexOf("[WARNING]") > -1) {
-          process.stdin.write(chalk.yellow(line));
-        } else {
-          process.stdin.write(line);
-        }
+        this.activePattern.chalks.forEach(function(chalk) {
+          if (line.indexOf(chalk.pattern) > -1) {
+            process.stdin.write(chalk.chalk(line));
+          }
+        });
       });
-
     };
+
+    this.patterns = [];
+
+    this.patterns['JLevels'] =
+      {
+        id : "JLevels",
+        description : "Colored patterns for the well known java log format containing the level like [INFO], [WARNING], ...",
+        chalks : [
+          {
+            pattern : "[ERROR]",
+            chalk : chalk.red
+          },
+          {
+            pattern : "[WARNING]",
+            chalk : chalk.yellow
+          },
+          {
+            pattern : "[INFO]",
+            chalk : chalk.green
+          }
+        ],
+      };
+
+    activePattern = this.patterns['JLevels'];
+
+    this.setActivePattern = function(name) {
+      activePattern = this.patterns[name];
+    }
 
     /*
       Reads a string line by line
@@ -24,6 +47,7 @@ module.exports = function() {
         callback function(line)
     */
     this._readLines = function(string, callback) {
+      debugger;
       var start = 0;
       for (i = 0; i < string.length; i++) {
         if (string.charAt(i) == "\n" || i == string.length - 1) {
