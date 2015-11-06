@@ -1,6 +1,16 @@
 var fs = require('fs');
+var Path = require('path');
 /**
- * Constructor for the logwriter
+ * Constructor for the log streamer
+ *
+ * @param     fileToObserve The absolute path to the file which should be observed
+ *
+ * @param     options       An object containing different optional config options
+ *                          - pollIntervall: An integer denoting the intercall in milliseconds
+ *                            at which the file should be polled
+ *                          - streamTail: A flag indicating if the tail should be initially streamed
+ *                          - initialBytesToRead: The size of the tail that should be initially streamed.
+ *                            Only effective if `streamTail` is set to true.
  */
 var LogStreamer = module.exports = function(fileToObserve, options)  {
   options = options || {};
@@ -123,6 +133,10 @@ proto._getLastLines = function(fd, fileSize, tailSize, callback) {
   // This reads the last bytes of the file
   // `fileSize - tailSize` determines the position at which to start reading
   fs.read(fd, buffer, 0, tailSize, fileSize - tailSize, function(error, bRead, buffer) {
+    if (error) {
+      return callback(error);
+    }
+
     var bufferString = String(buffer);
     var posToStartRead = -1;
     for (i = 0; i < bufferString.length; i++) {
