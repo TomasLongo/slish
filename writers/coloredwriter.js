@@ -3,11 +3,20 @@ var chalk = require("chalk");
 module.exports = function() {
     this.consume = function(data) {
       this._readLines(data, function(line) {
-        this.activePattern.chalks.forEach(function(chalk) {
+
+        var chalked = false;
+        for (var i = 0; i < this.activePattern.chalks.length; i++) {
+          var chalk = this.activePattern.chalks[i];
           if (line.indexOf(chalk.pattern) > -1) {
-            process.stdin.write(chalk.chalk(line));
+            process.stdout.write(chalk.chalk(line));
+            chalked = true;
+            break;
           }
-        });
+        }
+
+        if (chalked === false) {
+          process.stdout.write(line);
+        }
       });
     };
 
@@ -47,7 +56,6 @@ module.exports = function() {
         callback function(line)
     */
     this._readLines = function(string, callback) {
-      debugger;
       var start = 0;
       for (i = 0; i < string.length; i++) {
         if (string.charAt(i) == "\n" || i == string.length - 1) {
