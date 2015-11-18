@@ -1,6 +1,12 @@
 {
   "name": "slish",
   "version": "0.4.0",
-  "description": "Real time, extendable file viewer",
+  "description": "Real time, extendable file monitor",
   "author": "Tomas Longo <longo.tomas@googlemail.com>",
+  "keywords": "filemonitoring tail file",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TomasLongo/slish.git"
+  }
 }
