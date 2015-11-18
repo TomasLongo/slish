@@ -8,37 +8,43 @@ var Path = require('path');
  * @param     options       An object containing different optional config options
  *                          - pollIntervall: An integer denoting the intercall in milliseconds
  *                            at which the file should be polled
- *                          - streamTail: A flag indicating if the tail should be initially streamed
+ *                          - streamTailInitially: A flag indicating if the tail should be initially streamed
  *                          - initialBytesToRead: The size of the tail that should be initially streamed.
- *                            Only effective if `streamTail` is set to true.
+ *                            Only effective if `streamTailInitially` is set to true.
  */
-var LogStreamer = module.exports = function(fileToObserve, options)  {
+var Slish = module.exports = function(fileToObserve, options)  {
   options = options || {};
 
-  this.writers = [];
+  this.consumers = [];
   this.pollInterval = options.pollInterval || 50;
   this.fileToObserve = fileToObserve;
   this.initialBytesToRead = options.initialBytesToRead || 500;
   this.lastSize = 0;
 
-  this.streamTail = options.streamTail || true;
+  this.streamTailInitially = options.streamTailInitially || true;
 
   this._init();
 }
 
-var proto = LogStreamer.prototype;
+var proto = Slish.prototype;
 
+/**
+  Starts observing the file.
+ */
 proto.startStreaming = function() {
   var self = this;
   this.intervalHandler = setInterval(function() { self._poll() }, self.pollInterval);
 }
 
+/**
+  Stops observing the file
+ */
 proto.stopStreaming = function() {
   clearInterval(this.intervalHandler);
 }
 
-proto.addWriter = function(writer) {
-  this.writers.push(writer);
+proto.addConsumer = function(writer) {
+  this.consumers.push(writer);
 }
 
 /**
@@ -53,7 +59,7 @@ proto.setInterval = function(interval) {
  * Streams data to all registered consumers
  */
 proto._stream = function(data) {
-  this.writers.forEach(function(writer) {
+  this.consumers.forEach(function(writer) {
     writer.consume(data);
   });
 }
@@ -61,10 +67,11 @@ proto._stream = function(data) {
 /**
  * Inits the state of the streamer by reading
  * the file to observe.
+ *
+ * Streams the tail of the file if specified.
  */
 proto._init = function() {
   var self = this;
-  console.log('Initialising for %s', self.fileToObserve);
   fs.stat(self.fileToObserve, function(error, stats) {
     if (error) {
       console.error(error.message);
@@ -80,7 +87,7 @@ proto._init = function() {
       return;
     }
 
-    if (!self.streamTail) {
+    if (!self.streamTailInitially) {
       return;
     }
 

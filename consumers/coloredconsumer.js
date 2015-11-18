@@ -1,3 +1,16 @@
+/**
+  Takes in some new file content, processes it and colors every line that
+  contains a specified pattern.
+  Lines that do not contain any pattern are just passed to stdout as is.
+
+  See built in pattern (JLevels, Winston) for working examples.
+
+  To create your custom pattern-definitions make sure it has
+  an array object named `chalks` that contains a `chalk` object
+  for each pattern that you want to be colored and activate that definition
+  with `setActivePattern` on the writer.
+*/
+
 var chalk = require("chalk");
 
 module.exports = function() {
@@ -20,7 +33,7 @@ module.exports = function() {
       });
     };
 
-    this.patterns = [];
+    this.patterns = {};
 
     this.patterns['JLevels'] =
       {
@@ -42,6 +55,26 @@ module.exports = function() {
         ],
       };
 
+      this.patterns['Winston'] =
+        {
+          id : "Winston",
+          description : "Colored patterns for the winston logger, which prefixes logs with 'info', 'error', ...",
+          chalks : [
+            {
+              pattern : "error:",
+              chalk : chalk.red
+            },
+            {
+              pattern : "warn:",
+              chalk : chalk.yellow
+            },
+            {
+              pattern : "info:",
+              chalk : chalk.green
+            }
+          ],
+        };
+
     activePattern = this.patterns['JLevels'];
 
     this.setActivePattern = function(name) {
@@ -49,7 +82,8 @@ module.exports = function() {
     }
 
     /*
-      Reads a string line by line
+      Reads a string line by line and passes found lines
+      to the callback
 
       params:
         string The string to read
