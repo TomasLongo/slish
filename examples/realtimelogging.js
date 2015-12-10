@@ -4,24 +4,27 @@
   content in real time.
  */
 
-if (process.argv.length !== 3) {
- console.log('Usage: node realtimelogging.js <fileToWriteTo>');
+if (process.argv.length < 3) {
+ console.log('Usage: node realtimelogging.js <fileToWriteTo> [intervallBetweenMessages]');
  process.exit(-1);
 }
 
 var Streamer = require('slish');
-var ConsoleWriter = require('writers/consoleconsumer');
-var ColoredWriter = require('writers/coloredconsumer')
+var ConsoleWriter = require('consumers/consoleconsumer');
+var ColoredWriter = require('consumers/coloredconsumer');
 var path = require('path');
 var winston = require('winston');
 
+/**
+ * Redirect log to file
+ */
 winston.add(winston.transports.File,{
   name: "DEFAULT",
   json: false,
   level: 'info',
   filename: process.argv[2],
   timestamp: function() {
-    return Date.now();
+    return new Date(Date.now());
   },
   zippedArchive: true,
   maxsize: 10240000, //10MB
@@ -41,4 +44,4 @@ var messages = [
 var index = 0;
 setInterval(function() {
   messages[(index++) % messages.length]();
-}, 2000);
+}, process.argv[3] || 2000);

@@ -1,0 +1,5 @@
+node_modules/
+*learn*
+tests/
+todos.md
+*.log

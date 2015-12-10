@@ -6,13 +6,17 @@
  *
  * @param socket The socket to stream the content to
  */
-var SocketWriter = function(socket, eventToEmit) {
+var SocketConsumer = function(socket, eventToEmit) {
+  console.log('Creating new socketconsumer. Will emit event %s', eventToEmit);
   this.socket = socket;
   this.event = eventToEmit;
 }
 
-var proto = SocketWriter.prototype;
+var proto = SocketConsumer.prototype;
 
 proto.consume = function(data) {
-  this.socket.emit(this.eventToEmit, data);
+  console.log('Emitting new content to client');
+  this.socket.emit(this.event, data);
 }
+
+module.exports = SocketConsumer;
