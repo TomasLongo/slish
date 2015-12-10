@@ -1,0 +1,9 @@
+html, body {
+  height: 100%;
+}
+
+.logs {
+  height: 400px;
+  border-style: groove;
+  overflow: scroll;
+}

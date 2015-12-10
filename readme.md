@@ -8,10 +8,11 @@ Consumer must conform to a simple interface and provide a method `consume` that 
 
 ### Features
 * Easy to use API. Start to stream is a matter of creating a Slish instance and call `startStreaming` on it.
-* Easily. Slish makes it easy to create custom consumers. Just provide an object with a method `consume(newData)` where `newData` is the new file content detected by Slish and you're ready to go.
+* Slish makes it easy to create custom consumers. Just provide an object with a method `consume(newData)` where `newData` is the new file content detected by Slish and you're ready to go.
 * Ships with three ready to use consumers
   * ConsoleConsumer: Simply pass new content to stdout
   * ColoredConsumer: Colors new content line-by-line based on configured patterns
+  * SocketConsumer: Sends new content over to remote clients connecting via [socket.io](http://www.socket.io)
 
 ### Consumers
 The `consumers` folder contains a separate `package.json` file to manage the dependencies of the consumers.
