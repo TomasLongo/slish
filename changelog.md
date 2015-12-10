@@ -12,5 +12,5 @@ Simple real time monitoring of file sending new content to multiple destinations
 * Extracted the logstreamer into own class which can be required
 * Fixed issue where the colored writer would not color new content.
 
-###Added
+### Added
 * Changelog, readme
